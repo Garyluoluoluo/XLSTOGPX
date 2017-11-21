@@ -1,5 +1,5 @@
 # XLSTOGPX
-1xls转GPX脚本
-2先在toGPX文档里按格填写经纬度坐标
-3运行main脚本
-4获得GPXresult.gpx 文件。
+xls转GPX脚本<br>
+先在toGPX文档里按格填写经纬度坐标<br>
+运行main脚本<br>
+获得GPXresult.gpx 文件。<br>
