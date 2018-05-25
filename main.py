@@ -1,23 +1,29 @@
 # -*- coding: utf-8 -*-
 import xml.dom.minidom
 import xlrd
+import datetime
 def readexl():
-    data = xlrd.open_workbook('toGPX.xls')
+    data = xlrd.open_workbook('时间位置.xlsx')
     table = data.sheet_by_name('Sheet1')
     nRow = table.nrows
     nCol = table.ncols
     list1 = []
 
-    for i in range(nRow):
+    for i in range(1,nRow):
         point = {}
         for j in range(nCol):
             value = table.row_values(i)[j]
             if j == 0:
-                point['name'] = str(value)
-            if j == 1:
-                point['lat'] = str(value)
+                timecon = str(value)
+                timecon =str(datetime.datetime.now().year)+ '-'+timecon[-12:-10]+'-'+timecon[-10:-8] +'T'+ timecon[-8:-6]+':'+ timecon[-6:-4] + ':'+ timecon[-4:-2] + 'Z'
+
+                point['time'] = timecon
+            if j == 3:
+                lat = float(value)/3600
+                point['lat'] = str(lat)
             if j == 2:
-                point['lon'] = str(value)
+                lon = float(value)/3600
+                point['lon'] = str(lon)
         list1.append(point)
     return list1
 
@@ -36,29 +42,29 @@ def toxml(checklist):
     doc.appendChild(root)
 
     #managerList = [{'name' : 'dian1',  'lat' : '30.513906525447965', 'lon' : '104.05195640400052'},{'name' : 'dian2', 'lat' : '30.512208770960569', 'lon' : '104.06846079044044'},{'name' : 'dian3', 'lat' : '30.510888202115893', 'lon' : '104.0592603944242'}]
-    noderte = doc.createElement('rte')
-    nodertename = doc.createElement('name')
-    nodertename.appendChild(doc.createTextNode('Line'))
-    noderte.appendChild(nodertename)
+    nodetrk = doc.createElement('trk')
+    nodetrkname = doc.createElement('name')
+    nodetrkname.appendChild(doc.createTextNode('Track'))
+    nodetrk.appendChild(nodetrkname)
+    nodetrkseg = doc.createElement('trkseg')
     for i in checklist :
-        nodertept = doc.createElement('rtept')
-        nodertept.setAttribute('lat', str(i['lat']))
-        nodertept.setAttribute('lon', str(i['lon']))
+        nodetrkpt = doc.createElement('trkpt')
+        nodetrkpt.setAttribute('lat', str(i['lat']))
+        nodetrkpt.setAttribute('lon', str(i['lon']))
         #给叶子节点name设置一个文本节点，用于显示文本内容
-        noderteptname = doc.createElement("name")
-        noderteptname.appendChild(doc.createTextNode(str(i['name'])))
-        nodedesc = doc.createElement("desc")
-        nodedesc.appendChild(doc.createTextNode(''))
+        nodeele = doc.createElement('ele')
+        nodeele.appendChild(doc.createTextNode('0'))
+        nodetrkpt.appendChild(nodeele)
+        nodetime = doc.createElement('time')
+        nodetime.appendChild(doc.createTextNode(i['time']))
+        nodetrkpt.appendChild(nodetime)
+        nodetrkseg.appendChild(nodetrkpt)
+        print(i['time']+'    '+i['lat']+'    '+i['lon'])
 
-        nodesym = doc.createElement("sym")
-        nodesym.appendChild(doc.createTextNode('unistrong:104'))
 
 
-        nodertept.appendChild(noderteptname)
-        nodertept.appendChild(nodedesc)
-        nodertept.appendChild(nodesym)
-        noderte.appendChild(nodertept)
-    root.appendChild(noderte)
+    nodetrk.appendChild(nodetrkseg)
+    root.appendChild(nodetrk)
 #开始写xml文档
     fp = open('GPXresult.gpx', 'w')
     doc.writexml(fp, indent='\t', addindent='\t', newl='\n', encoding="utf-8")
@@ -72,4 +78,8 @@ def toxml(checklist):
 if __name__ == '__main__':
     managerList = readexl()
     toxml(managerList)
+    close =input('转换成功，点击任意按键关闭窗口')
+    if close is not None:
+        exit()
+
  
